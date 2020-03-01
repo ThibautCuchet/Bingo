@@ -1,0 +1,16 @@
+.Creator-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+.Creator-name {
+  display: flex;
+  flex-direction: row;
+}
+
+.Creator-size {
+  display: flex;
+  flex-direction: row;
+  width: 80%;
+}

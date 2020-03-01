@@ -1,8 +1,5 @@
-import React from "react"
-import ReactDOM from "react-dom"
-import LiveConfigPage from "./components/LiveConfigPage/LiveConfigPage"
+import React from "react";
+import ReactDOM from "react-dom";
+import ConfigPage from "./components/ConfigPage/ConfigPage";
 
-ReactDOM.render(
-  <LiveConfigPage />,
-  document.getElementById("root")
-)
+ReactDOM.render(<ConfigPage />, document.getElementById("root"));

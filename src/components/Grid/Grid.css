@@ -1,0 +1,36 @@
+.Grid-table {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  height: 80vh;
+  color: black;
+}
+
+.Grid-rows {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+}
+
+.Grid-cell {
+  border: 1px black solid;
+  background-color: white;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.Grid-title {
+  word-break: break-all;
+  overflow-wrap: break-word;
+}
+
+.Grid-cell-checked {
+  border: 1px black solid;
+  background-color: green;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
