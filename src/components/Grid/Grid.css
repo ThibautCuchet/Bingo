@@ -2,28 +2,38 @@
   display: flex;
   flex: 1;
   flex-direction: column;
-  height: 80vh;
   color: black;
+  height: 80vh;
+}
+
+.Grid-table-component {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  color: black;
+  width: 1024px;
+  height: 1024px;
+}
+
+.Grid-action {
 }
 
 .Grid-rows {
   display: flex;
   flex-direction: row;
   flex: 1;
+  flex-flow: nowrap;
 }
 
 .Grid-cell {
   border: 1px black solid;
   background-color: white;
-  flex: 1;
+  flex: 1 1;
+
   display: flex;
   justify-content: center;
   align-items: center;
-}
-
-.Grid-title {
-  word-break: break-all;
-  overflow-wrap: break-word;
+  padding: 5px;
 }
 
 .Grid-cell-checked {
@@ -33,4 +43,5 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  padding: 5px;
 }

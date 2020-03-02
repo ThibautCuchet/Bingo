@@ -10,6 +10,37 @@ export default class Grid extends React.Component {
     };
   }
 
+  checkRow(i) {
+    return this.props.bingoGrid[i].some(element => !element.checked);
+  }
+
+  checkCol(j) {
+    return this.props.bingoGrid.some(element => !element[j].checked);
+  }
+
+  checkDiagonale(i, j) {
+    if (i == j) {
+      for (let n = 0; n < this.props.bingoGrid.length; n++) {
+        if (!this.props.bingoGrid[n][n].checked) return false;
+      }
+      return true;
+    } else if (i + j == this.props.bingoGrid.length - 1) {
+      for (let n = 0; n < this.props.bingoGrid.length; n++) {
+        if (
+          !this.props.bingoGrid[n][this.props.bingoGrid.length - 1 - n].checked
+        )
+          return false;
+      }
+      return true;
+    }
+    return false;
+  }
+
+  checkBingo(i, j) {
+    if (!this.checkRow(i) || !this.checkCol(j) || this.checkDiagonale(i, j))
+      return { backgroundColor: "grey" };
+  }
+
   render() {
     return (
       <div>
@@ -42,7 +73,11 @@ export default class Grid extends React.Component {
         ) : (
           <div />
         )}
-        <div className="Grid-table">
+        <div
+          className={
+            this.props.streamer ? "Grid-table" : "Grid-table-component"
+          }
+        >
           {this.props.bingoGrid.map((row, i) => (
             <div className="Grid-rows" key={i}>
               {row.map((cell, j) => (
@@ -54,16 +89,20 @@ export default class Grid extends React.Component {
                       this.props.streamer &&
                       this.props.handleCheck(i, j);
                   }}
+                  style={{
+                    ...this.checkBingo(i, j)
+                  }}
                 >
                   <div className="Grid-title">
                     {this.state.edit ? (
-                      <input
+                      <textarea
                         key={i + this.state.name + j}
-                        type="text"
                         value={cell.name}
                         onChange={event =>
                           this.props.handleChange(i, j, event.target.value)
                         }
+                        cols={9}
+                        rows={4}
                       />
                     ) : (
                       cell.name

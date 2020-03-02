@@ -109,7 +109,6 @@ export default class ConfigPage extends React.Component {
   };
 
   handleReset = () => {
-    console.log("Catch");
     const selectedGrid = [...this.state.selectedGrid];
     selectedGrid.map(rows => rows.map(element => (element.checked = false)));
     this.setState({ selectedGrid });
@@ -122,7 +121,6 @@ export default class ConfigPage extends React.Component {
       rows.forEach((cell, j) => {
         const x = Math.floor(Math.random() * selectedGrid.length);
         const y = Math.floor(Math.random() * rows.length);
-        console.log(x, y, ...selectedGrid);
         const temp = selectedGrid[x][y];
         selectedGrid[x][y] = selectedGrid[i][j];
         selectedGrid[i][j] = temp;
@@ -162,6 +160,7 @@ export default class ConfigPage extends React.Component {
             <select
               value={this.state.selectedBingo}
               onChange={this.handleOnChange}
+              className="Config-select"
             >
               <option value="">--Nouveau bingo--</option>
               {this.state.configuration.bingos &&
@@ -171,22 +170,24 @@ export default class ConfigPage extends React.Component {
                   </option>
                 ))}
             </select>
-            {this.state.selectedBingo === "" ? (
-              <Creator
-                onCreate={this.handleOnCreate}
-                theme={this.state.theme}
-              />
-            ) : (
-              <Grid
-                bingoGrid={this.state.selectedGrid}
-                bingoName={this.state.selectedBingo}
-                handleChange={this.handleChange}
-                handleCheck={this.handleCheck}
-                handleReset={this.handleReset}
-                handleShuffle={this.handleShuffle}
-                streamer={true}
-              />
-            )}
+            <div className="Config-content">
+              {this.state.selectedBingo === "" ? (
+                <Creator
+                  onCreate={this.handleOnCreate}
+                  theme={this.state.theme}
+                />
+              ) : (
+                <Grid
+                  bingoGrid={this.state.selectedGrid}
+                  bingoName={this.state.selectedBingo}
+                  handleChange={this.handleChange}
+                  handleCheck={this.handleCheck}
+                  handleReset={this.handleReset}
+                  handleShuffle={this.handleShuffle}
+                  streamer
+                />
+              )}
+            </div>
           </div>
         </div>
       );
