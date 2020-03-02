@@ -14,6 +14,7 @@ export default function Creator(props) {
           type="text"
           value={name}
           onChange={event => changeName(event.target.value)}
+          style={{ marginLeft: 10 }}
         />
       </div>
 
@@ -24,15 +25,17 @@ export default function Creator(props) {
           value={cols}
           onChange={event => changeCols(parseInt(event.target.value))}
           className="Creator-input"
+          style={{ marginLeft: 10, width: "3em" }}
         />
         <input
           type="number"
           value={rows}
           onChange={event => changeRows(parseInt(event.target.value))}
           className="Creator-input"
+          style={{ width: "3em" }}
         />
       </div>
-      <div>
+      <div className="Creator-action">
         <input
           type="button"
           value="Créer"
