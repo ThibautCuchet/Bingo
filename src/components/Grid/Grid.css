@@ -15,7 +15,22 @@
   height: 1024px;
 }
 
-.Grid-action {
+.Grid-action input[type="button"] {
+  border: 1px solid black;
+  color: white;
+  background-color: #6441a4;
+  border-radius: 5px;
+  height: 5vh;
+}
+
+.Grid-action input[type="button"]:active {
+  outline: none;
+  background-color: #201c2b;
+}
+
+.Grid-action input[type="button"]:focus {
+  outline: none;
+  box-shadow: 0px 0px 2px #201c2b;
 }
 
 .Grid-rows {
