@@ -1,19 +1,25 @@
 .Config {
   font-family: Arial, Helvetica, sans-serif;
-  font-size: 2.3vw;
 }
 
 .Config-select {
-  border: 1px solid #6441a4;
-  border-radius: 2px;
+  border: 0.1em solid #6441a4;
+  border-top-left-radius: 5px;
+  background-color: #6441a4;
+}
+
+.Confif-select:focus {
+  outline: none;
 }
 
 .Config-content {
-  margin-top: 15px;
-  border: 2px solid #6441a4;
+  border: 0.15em solid #6441a4;
   border-radius: 5px;
+  border-top-left-radius: 0;
   padding: 20px;
   background-color: #201c2b;
+  display: flex;
+  flex: 1;
 }
 
 .Config-light {

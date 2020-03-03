@@ -75,11 +75,11 @@ export default class App extends React.Component {
   render() {
     if (this.state.finishedLoading && this.state.isVisible) {
       return (
-        <div className="App">
+        <div className={this.props.type === "mobile" ? "App-mobile" : "App"}>
           <div
             className={this.state.theme === "light" ? "App-light" : "App-dark"}
           >
-            <Grid bingoGrid={this.state.bingoGrid} />
+            <Grid bingoGrid={this.state.bingoGrid} type={this.props.type} />
           </div>
         </div>
       );

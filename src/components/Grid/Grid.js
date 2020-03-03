@@ -75,7 +75,9 @@ export default class Grid extends React.Component {
         )}
         <div
           className={
-            this.props.streamer ? "Grid-table" : "Grid-table-component"
+            this.props.streamer || this.props.type === "mobile"
+              ? "Grid-table"
+              : "Grid-table-component"
           }
         >
           {this.props.bingoGrid.map((row, i) => (
