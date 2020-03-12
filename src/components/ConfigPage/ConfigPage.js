@@ -3,6 +3,7 @@ import Authentication from "../../util/Authentication/Authentication";
 import Creator from "../Creator/Creator";
 import "./Config.css";
 import Grid from "../Grid/Grid";
+import database from "../../util/Database/Database";
 
 export default class ConfigPage extends React.Component {
   constructor(props) {
@@ -14,9 +15,8 @@ export default class ConfigPage extends React.Component {
     this.state = {
       finishedLoading: false,
       theme: "light",
-      selectedBingo: "",
       selectedGrid: [],
-      configuration: {}
+      configuration: { currentOpen: "" }
     };
   }
 
@@ -38,7 +38,19 @@ export default class ConfigPage extends React.Component {
 
           // now we've done the setup for the component, let's set the state to true to force a rerender with the correct data.
           this.setState(() => {
-            return { finishedLoading: true };
+            return { finishedLoading: true, channelId: auth.channelId };
+          });
+          this.twitch.rig.log("Loading ...");
+          database.ref(`streamer/${auth.channelId}`).on("value", snapshot => {
+            let configuration = { bingos: [], currentOpen: "" };
+            if (snapshot.val() != null) {
+              try {
+                configuration = JSON.parse(snapshot.val());
+              } catch (e) {}
+            }
+            this.setState({ configuration }, () =>
+              console.log(this.state.configuration)
+            );
           });
         }
       });
@@ -46,34 +58,14 @@ export default class ConfigPage extends React.Component {
       this.twitch.onContext((context, delta) => {
         this.contextUpdate(context, delta);
       });
-
-      this.twitch.configuration.onChanged(() => {
-        let configuration = this.twitch.configuration.broadcaster
-          ? this.twitch.configuration.broadcaster.content
-          : {};
-        try {
-          configuration = JSON.parse(configuration);
-        } catch (e) {
-          configuration = { bingos: [] };
-        }
-
-        this.setState({ configuration });
-      });
-
-      setInterval(() => {
-        if (this.state.selectedBingo !== "")
-          this.twitch.send(
-            "broadcast",
-            "application/json",
-            JSON.stringify(this.state.selectedGrid)
-          );
-      }, 1000);
     }
   }
 
   handleOnChange = event => {
-    const selectedBingo = event.target.value;
-    this.setState({ selectedBingo }, () => this.selectGrid(selectedBingo));
+    const currentOpen = event.target.value;
+    const configuration = { ...this.state.configuration };
+    configuration.currentOpen = currentOpen;
+    this.setState({ configuration });
   };
 
   handleOnCreate = (name, rows, cols) => {
@@ -81,71 +73,68 @@ export default class ConfigPage extends React.Component {
       .fill()
       .map(() =>
         Array(cols)
-          .fill(undefined)
-          .map(() => ({ checked: false, name: "" }))
+          .fill()
+          .map(() => ({ values: [""], validate: false, nbValidate: 0 }))
       );
 
     const bingo = { name, grid };
     const configuration = { ...this.state.configuration };
     configuration.bingos.push(bingo);
-    this.setState({ configuration, selectedBingo: bingo.name }, () =>
-      this.selectGrid(bingo.name)
-    );
+    configuration.currentOpen = bingo.name;
+    this.setState({ configuration });
     this.saveConfiguration();
   };
 
   handleChange = (i, j, value) => {
-    const selectedGrid = [...this.state.selectedGrid];
-    selectedGrid[i][j].name = value;
-    this.setState({ selectedGrid });
+    const configuration = { ...this.state.configuration };
+    configuration.bingos[configuration.currentOpen].grid[i][
+      j
+    ].values[0] = value;
+    this.setState({ configuration });
     this.saveConfiguration();
   };
 
   handleCheck = (i, j) => {
-    const selectedGrid = [...this.state.selectedGrid];
-    selectedGrid[i][j].checked = !selectedGrid[i][j].checked;
-    this.setState({ selectedGrid });
+    const configuration = { ...this.state.configuration };
+    const currentOpen = [...configuration.bingos[configuration.currentOpen]];
+    currentOpen.grid[i][j].validate = !currentOpen.grid[i][j].validate;
+    this.setState({ configuration });
     this.saveConfiguration();
   };
 
   handleReset = () => {
-    const selectedGrid = [...this.state.selectedGrid];
-    selectedGrid.map(rows => rows.map(element => (element.checked = false)));
-    this.setState({ selectedGrid });
+    const configuration = { ...this.state.configuration };
+    const currentOpen = [...configuration.bingos[configuration.currentOpen]];
+    currentOpen.grid.map(rows =>
+      rows.map(element => {
+        element.validate = false;
+        element.nbValidate = 0;
+      })
+    );
+    this.setState({ configuration });
     this.saveConfiguration();
   };
 
   handleShuffle = () => {
-    const selectedGrid = [...this.state.selectedGrid];
-    selectedGrid.forEach((rows, i) => {
+    const configuration = { ...this.state.configuration };
+    const currentOpen = [...configuration.bingos[configuration.currentOpen]];
+    currentOpen.grid.forEach((rows, i) => {
       rows.forEach((cell, j) => {
-        const x = Math.floor(Math.random() * selectedGrid.length);
+        const x = Math.floor(Math.random() * currentOpen.grid.length);
         const y = Math.floor(Math.random() * rows.length);
-        const temp = selectedGrid[x][y];
+        const temp = currentOpen.grid[x][y];
         selectedGrid[x][y] = selectedGrid[i][j];
         selectedGrid[i][j] = temp;
       });
     });
-    this.setState({ selectedGrid });
+    this.setState({ configuration });
     this.saveConfiguration();
   };
 
-  selectGrid(bingoName) {
-    let selectedGrid = [];
-    if (bingoName !== "") {
-      selectedGrid = this.state.configuration.bingos.find(
-        element => element.name === bingoName
-      ).grid;
-    }
-    this.setState({ selectedGrid });
-  }
-
   saveConfiguration() {
-    this.twitch.configuration.set(
-      "broadcaster",
-      "1.0",
-      JSON.stringify(this.state.configuration)
-    );
+    database
+      .ref(`streamer/${this.state.channelId}`)
+      .set(JSON.stringify(this.state.configuration));
   }
 
   render() {
@@ -171,15 +160,19 @@ export default class ConfigPage extends React.Component {
                 ))}
             </select>
             <div className="Config-content">
-              {this.state.selectedBingo === "" ? (
+              {this.state.configuration &&
+              this.state.configuration.currentOpen === "" ? (
                 <Creator
                   onCreate={this.handleOnCreate}
                   theme={this.state.theme}
                 />
               ) : (
                 <Grid
-                  bingoGrid={this.state.selectedGrid}
-                  bingoName={this.state.selectedBingo}
+                  bingoGrid={
+                    this.state.configuration.bingos[
+                      this.state.configuration.currentOpen
+                    ].grid
+                  }
                   handleChange={this.handleChange}
                   handleCheck={this.handleCheck}
                   handleReset={this.handleReset}
