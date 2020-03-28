@@ -3,6 +3,7 @@ import Authentication from "../../util/Authentication/Authentication";
 
 import "./App.css";
 import Grid from "../Grid/Grid";
+import database from "../../util/Database/Database";
 
 export default class App extends React.Component {
   constructor(props) {
@@ -15,7 +16,7 @@ export default class App extends React.Component {
       finishedLoading: false,
       theme: "light",
       isVisible: false,
-      bingoGrid: {}
+      configuration: { bingos: {}, currentOpen: "" }
     };
   }
 
@@ -43,15 +44,25 @@ export default class App extends React.Component {
           // if the component hasn't finished loading (as in we've not set up after getting a token), let's set it up now.
 
           // now we've done the setup for the component, let's set the state to true to force a rerender with the correct data.
+          var parts = auth.token.split(".");
+          var payload = JSON.parse(window.atob(parts[1]));
+          var streamer_id = payload.channel_id;
           this.setState(() => {
-            return { finishedLoading: true };
+            return {
+              finishedLoading: true,
+              channelId: streamer_id,
+              isVisible: true
+            };
           });
-        }
-      });
 
-      this.twitch.listen("broadcast", (target, contentType, body) => {
-        const bingoGrid = JSON.parse(body);
-        this.setState({ bingoGrid, isVisible: true });
+          setInterval(() => {
+            fetch(
+              `https://bingo-3e03d.firebaseio.com/streamer/${streamer_id}.json`
+            )
+              .then(result => result.json())
+              .then(configuration => this.setState({ configuration }));
+          }, 2000);
+        }
       });
 
       this.twitch.onVisibilityChanged((isVisible, _c) => {
@@ -73,13 +84,24 @@ export default class App extends React.Component {
   }
 
   render() {
-    if (this.state.finishedLoading && this.state.isVisible) {
+    if (
+      this.state.finishedLoading &&
+      this.state.isVisible &&
+      this.state.configuration.currentOpen !== ""
+    ) {
       return (
         <div className={this.props.type === "mobile" ? "App-mobile" : "App"}>
           <div
             className={this.state.theme === "light" ? "App-light" : "App-dark"}
           >
-            <Grid bingoGrid={this.state.bingoGrid} type={this.props.type} />
+            <Grid
+              bingoGrid={
+                this.state.configuration.bingos[
+                  this.state.configuration.currentOpen
+                ].grid
+              }
+              type={this.props.type}
+            />
           </div>
         </div>
       );
