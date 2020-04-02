@@ -49,6 +49,26 @@ export default class App extends React.Component {
         }
       });
 
+      this.twitch.configuration.onChanged(() => {
+        let appConfig = this.twitch.configuration.global
+          ? this.twitch.configuration.global.content
+          : "";
+
+        try {
+          appConfig = JSON.parse(appConfig);
+        } catch (e) {
+          appConfig = {
+            colors: { blank: "white", validate: "green", complete: "grey" }
+          };
+        }
+
+        this.setState(() => {
+          return {
+            appConfig
+          };
+        });
+      });
+
       this.twitch.listen("broadcast", (target, contentType, body) => {
         const bingoGrid = JSON.parse(body);
         this.setState({ bingoGrid, isVisible: true });
@@ -79,7 +99,11 @@ export default class App extends React.Component {
           <div
             className={this.state.theme === "light" ? "App-light" : "App-dark"}
           >
-            <Grid bingoGrid={this.state.bingoGrid} type={this.props.type} />
+            <Grid
+              bingoGrid={this.state.bingoGrid}
+              type={this.props.type}
+              appConfig={this.state.appConfig}
+            />
           </div>
         </div>
       );

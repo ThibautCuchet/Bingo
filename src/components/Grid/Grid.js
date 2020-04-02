@@ -2,6 +2,11 @@ import React from "react";
 
 import "./Grid.css";
 
+import saveIcon from "../../util/icons/save.svg";
+import editIcon from "../../util/icons/edit.svg";
+import emptyIcon from "../../util/icons/empty.svg";
+import shuffleIcon from "../../util/icons/shuffle.svg";
+
 export default class Grid extends React.Component {
   constructor(props) {
     super(props);
@@ -11,23 +16,23 @@ export default class Grid extends React.Component {
   }
 
   checkRow(i) {
-    return this.props.bingoGrid[i].some(element => !element.checked);
+    return this.props.bingoGrid[i].some(element => !element.validate);
   }
 
   checkCol(j) {
-    return this.props.bingoGrid.some(element => !element[j].checked);
+    return this.props.bingoGrid.some(element => !element[j].validate);
   }
 
   checkDiagonale(i, j) {
     if (i == j) {
       for (let n = 0; n < this.props.bingoGrid.length; n++) {
-        if (!this.props.bingoGrid[n][n].checked) return false;
+        if (!this.props.bingoGrid[n][n].validate) return false;
       }
       return true;
     } else if (i + j == this.props.bingoGrid.length - 1) {
       for (let n = 0; n < this.props.bingoGrid.length; n++) {
         if (
-          !this.props.bingoGrid[n][this.props.bingoGrid.length - 1 - n].checked
+          !this.props.bingoGrid[n][this.props.bingoGrid.length - 1 - n].validate
         )
           return false;
       }
@@ -36,10 +41,18 @@ export default class Grid extends React.Component {
     return false;
   }
 
-  checkBingo(i, j) {
+  checkBingo(i, j, validate) {
     if (!this.checkRow(i) || !this.checkCol(j) || this.checkDiagonale(i, j))
-      return { backgroundColor: "grey" };
+      return { backgroundColor: this.props.appConfig.colors.complete };
+    if (validate)
+      return { backgroundColor: this.props.appConfig.colors.validate };
+    return { backgroundColor: this.props.appConfig.colors.blank };
   }
+
+  handleSave = () => {
+    this.setState({ edit: false });
+    this.props.handleSave();
+  };
 
   render() {
     return (
@@ -47,27 +60,31 @@ export default class Grid extends React.Component {
         {this.props.streamer ? (
           <div className="Grid-action">
             {this.state.edit ? (
-              <input
-                type="button"
-                value="Enregistrer"
-                onClick={() => this.setState({ edit: false })}
+              <img
+                src={saveIcon}
+                className="Grid-button"
+                alt="Enregistrer"
+                onClick={() => this.handleSave()}
               />
             ) : (
-              <input
-                type="button"
-                value="Modifier"
+              <img
+                src={editIcon}
+                className="Grid-button"
+                alt="Modifier"
                 onClick={() => this.setState({ edit: true })}
               />
             )}
-            <input
-              type="button"
-              value="Réinitialiser"
-              onClick={() => this.props.handleReset()}
-            />
-            <input
-              type="button"
-              value="Mélanger"
+            <img
+              src={shuffleIcon}
+              className="Grid-button"
+              alt="Mélanger"
               onClick={() => this.props.handleShuffle()}
+            />
+            <img
+              src={emptyIcon}
+              className="Grid-button"
+              alt="Réinitialiser"
+              onClick={() => this.props.handleReset()}
             />
           </div>
         ) : (
@@ -84,7 +101,7 @@ export default class Grid extends React.Component {
             <div className="Grid-rows" key={i}>
               {row.map((cell, j) => (
                 <div
-                  className={cell.checked ? "Grid-cell-checked" : "Grid-cell"}
+                  className={cell.validate ? "Grid-cell-checked" : "Grid-cell"}
                   key={j}
                   onClick={() => {
                     !this.state.edit &&
@@ -92,14 +109,14 @@ export default class Grid extends React.Component {
                       this.props.handleCheck(i, j);
                   }}
                   style={{
-                    ...this.checkBingo(i, j)
+                    ...this.checkBingo(i, j, cell.validate)
                   }}
                 >
                   <div className="Grid-title">
                     {this.state.edit ? (
                       <textarea
-                        key={i + this.state.name + j}
-                        value={cell.name}
+                        key={i + " " + j}
+                        value={cell.values[0]}
                         onChange={event =>
                           this.props.handleChange(i, j, event.target.value)
                         }
@@ -107,7 +124,7 @@ export default class Grid extends React.Component {
                         rows={4}
                       />
                     ) : (
-                      cell.name
+                      <span>{cell.values[0]}</span>
                     )}
                   </div>
                 </div>

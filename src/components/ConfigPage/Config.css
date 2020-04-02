@@ -6,6 +6,7 @@
   border: 0.1em solid #6441a4;
   border-top-left-radius: 5px;
   background-color: #6441a4;
+  height: 2em;
 }
 
 .Confif-select:focus {
@@ -16,6 +17,7 @@
   border: 0.15em solid #6441a4;
   border-radius: 5px;
   border-top-left-radius: 0;
+  border-top-right-radius: 0;
   padding: 20px;
   background-color: #201c2b;
   display: flex;
@@ -28,4 +30,14 @@
 
 .Config-dark {
   color: white;
+}
+
+.Config-actions {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  flex-direction: row;
+  background-color: #6441a4;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
 }

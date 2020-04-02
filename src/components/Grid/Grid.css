@@ -42,10 +42,8 @@
 }
 
 .Grid-cell {
-  border: 1px black solid;
-  background-color: white;
+  border: 1px #201c2b solid;
   flex: 1 1;
-
   display: flex;
   justify-content: center;
   align-items: center;
@@ -56,8 +54,7 @@
 }
 
 .Grid-cell-checked {
-  border: 1px black solid;
-  background-color: green;
+  border: 1px #201c2b solid;
   flex: 1;
   display: flex;
   justify-content: center;
@@ -66,4 +63,12 @@
   user-select: none;
   word-break: break-word;
   font-size: 2.5vh;
+  color: black;
+}
+
+.Grid-button {
+  background-color: #6441a4;
+  border-radius: 25%;
+  padding: 1vh;
+  margin: 0.5vw;
 }
